@@ -35,7 +35,7 @@ function smallCanvas(cols: number, rows: number) {
   return small.getContext('2d', { willReadFrequently: true }) as CanvasRenderingContext2D;
 }
 
-export function createStage(canvas: HTMLCanvasElement, look: Look) {
+export function createStage(canvas: HTMLCanvasElement, look: Look, cssPerCol = CSS_PER_COL) {
   let placements = layoutBouquet(look.flowers, look.seed);
   let palette = look.palette;
   let progress = 1;
@@ -47,7 +47,7 @@ export function createStage(canvas: HTMLCanvasElement, look: Look) {
 
   function build() {
     const width = canvas.parentElement?.clientWidth || 320;
-    cols = Math.min(maxCols, Math.floor(width / CSS_PER_COL));
+    cols = Math.min(maxCols, Math.floor(width / cssPerCol));
     painter = createPainter(canvas, cols, width);
     small = smallCanvas(cols, painter.rows);
   }
@@ -59,13 +59,14 @@ export function createStage(canvas: HTMLCanvasElement, look: Look) {
     frameId = 0;
   }
 
-  function play(onDone?: () => void) {
+  function play(onDone?: () => void, seconds = BLOOM_SECONDS) {
     stop();
     let elapsed = 0;
     let last = performance.now();
     let drawn = 0;
     let cost = 0;
     progress = 0;
+    paint(); // otherwise whatever was last drawn stays up until the first tick
 
     const tick = (now: number) => {
       const delta = now - last;
@@ -76,7 +77,7 @@ export function createStage(canvas: HTMLCanvasElement, look: Look) {
       last = now;
       // A hidden tab gets no frames, so capping the step makes the bloom wait for it while slow devices still progress.
       elapsed += Math.min(delta, MAX_STEP_MS);
-      progress = Math.min(1, elapsed / (BLOOM_SECONDS * 1000));
+      progress = Math.min(1, elapsed / (seconds * 1000));
 
       const started = performance.now();
       paint();

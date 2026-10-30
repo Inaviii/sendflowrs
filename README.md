@@ -6,7 +6,7 @@ Send someone a bouquet of ASCII-art flowers that blooms when they open the link.
 
 **[sendflowrs.com](https://sendflowrs.com)**
 
-Pick up to five flowers and a colour palette, add a note if you like, and share the link, a QR code or the bouquet as plain text. No accounts, no analytics.
+Pick up to five flowers and a colour palette, shuffle the arrangement, add a note if you like, and share the link, a QR code or the bouquet as plain text. Recipients can watch it again or save it as an image. No accounts, no analytics.
 
 ## How it works
 
@@ -29,9 +29,9 @@ One Worker serves the static app and a small JSON API. The browser and Worker sh
 
 | What | Gzipped |
 |---|---|
-| JavaScript on every page | 8.3 KB |
+| JavaScript on every page | 9.0 KB |
 | QR library, loaded only on the share screen | 7.3 KB |
-| CSS | 1.7 KB |
+| CSS | 1.9 KB |
 
 There's no UI framework or font download, and the QR library is the only runtime dependency. CI fails if the JavaScript on every page exceeds 30 KB.
 

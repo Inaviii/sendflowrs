@@ -1,8 +1,9 @@
 import { decryptCode } from '../crypto/code';
 import { validateGift, type Gift } from '../gift/gift';
 import { copyText } from './clipboard';
-import { describeBouquet, greeting, signature } from './copy';
+import { describeBouquet, greeting, sendBackHref, signature } from './copy';
 import { el, reducedMotion } from './dom';
+import { downloadPng } from './share';
 import { createStage } from './stage';
 
 const VALID_ID = /^[0-9A-Za-z]{7}$/;
@@ -58,25 +59,66 @@ function revealer(gift: Gift, key: string): HTMLElement | null {
   return area;
 }
 
+// shortcut: the note is left out because wrapping long text on a canvas is fiddly, add it if people ask.
+function keepsake(bouquet: HTMLCanvasElement, title: string): HTMLCanvasElement {
+  const styles = getComputedStyle(document.documentElement);
+  const margin = Math.round(bouquet.width * 0.08);
+  const heading = Math.round(bouquet.width * 0.14);
+  const image = el('canvas', { width: bouquet.width + margin * 2, height: bouquet.height + heading + margin * 2 });
+  const g = image.getContext('2d') as CanvasRenderingContext2D;
+  g.fillStyle = styles.getPropertyValue('--paper');
+  g.fillRect(0, 0, image.width, image.height);
+  g.drawImage(bouquet, margin, margin + heading);
+  g.fillStyle = styles.getPropertyValue('--ink');
+  g.textAlign = 'center';
+  g.textBaseline = 'middle';
+  const size = Math.round(heading * 0.5);
+  g.font = `italic ${size}px Georgia, serif`;
+  // Long names shrink to fit rather than running off the image.
+  const fit = Math.min(1, bouquet.width / g.measureText(title).width);
+  g.font = `italic ${Math.floor(size * fit)}px Georgia, serif`;
+  g.fillText(title, image.width / 2, margin + heading / 2);
+  return image;
+}
+
 function showGift(root: HTMLElement, gift: Gift, key: string) {
+  document.title = 'Someone sent you flowers';
+  let stage: ReturnType<typeof createStage>;
+  const motion = !reducedMotion();
   const canvas = el('canvas', { className: 'bouquet' });
   canvas.setAttribute('role', 'img');
   canvas.setAttribute('aria-label', describeBouquet(gift));
 
   const letter = el('div', { className: 'letter' });
-  if (gift.note?.trim()) letter.append(el('p', { className: 'note', textContent: gift.note.trim() }));
+  if (gift.note?.trim()) letter.append(el('p', { className: 'note', dir: 'auto', textContent: gift.note.trim() }));
   const signed = signature(gift);
-  if (signed) letter.append(el('p', { className: 'signature', textContent: signed }));
+  if (signed) letter.append(el('p', { className: 'signature', dir: 'auto', textContent: signed }));
   const reveal = revealer(gift, key);
   if (reveal) letter.append(reveal);
-  letter.append(el('a', { className: 'quiet-link', href: '/', textContent: 'send flowers back' }));
+  const keep = el('div', { className: 'keep-actions' });
+  if (motion) {
+    keep.append(el('button', { className: 'button', type: 'button', textContent: 'watch again', onclick: () => stage.play() }));
+  }
+  keep.append(
+    el('button', {
+      className: 'button',
+      type: 'button',
+      textContent: 'save this bouquet',
+      onclick: () => {
+        stage.showFinal();
+        downloadPng(keepsake(canvas, greeting(gift)), 'sendflowrs-bouquet.png');
+      },
+    }),
+  );
+  letter.append(keep, el('a', { className: 'quiet-link', href: sendBackHref(gift), textContent: 'send flowers back' }));
 
-  const heading = el('h1', { className: 'title', textContent: greeting(gift) });
+  const heading = el('h1', { className: 'title', dir: 'auto', textContent: greeting(gift) });
   const frame = el('div', { className: 'frame' }, canvas);
 
-  if (reducedMotion()) {
+  if (!motion) {
     root.replaceChildren(heading, frame, letter);
-    createStage(canvas, gift).showFinal();
+    stage = createStage(canvas, gift);
+    stage.showFinal();
     return;
   }
 
@@ -87,7 +129,8 @@ function showGift(root: HTMLElement, gift: Gift, key: string) {
     onclick: () => {
       open.remove();
       frame.hidden = false;
-      createStage(canvas, gift).play(() => {
+      stage = createStage(canvas, gift);
+      stage.play(() => {
         letter.hidden = false;
         letter.classList.add('arrive');
       });

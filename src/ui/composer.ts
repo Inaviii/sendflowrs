@@ -2,11 +2,16 @@ import { encryptCode } from '../crypto/code';
 import { PALETTES } from '../flowers/palettes';
 import { LIMITS, SPECIES, type Gift, type Species } from '../gift/gift';
 import { buildLink } from './clipboard';
+import { charactersLeft, namesFromHash } from './copy';
 import { el, reducedMotion } from './dom';
 import { showShare } from './share';
 import { createStage } from './stage';
 
 const MAX_FLOWERS = 5;
+const QUICK_BLOOM_SECONDS = 1.5;
+// The preview is a small picture here, so its characters can be finer than on the recipient's page.
+const PREVIEW_CSS_PER_COL = 3;
+const randomSeed = () => crypto.getRandomValues(new Uint32Array(1))[0] as number;
 
 const LABELS: Record<Species, string> = {
   rose: 'rose',
@@ -35,13 +40,23 @@ function swatches(colours: string[]) {
 export function showComposer(root: HTMLElement): void {
   const flowers: Species[] = ['rose', 'daisy', 'tulip'];
   let palette = 0;
-  const seed = crypto.getRandomValues(new Uint32Array(1))[0] as number;
+  let seed = randomSeed();
   const look = () => ({ flowers: [...flowers], palette, seed });
 
   const canvas = el('canvas', { className: 'bouquet' });
   canvas.setAttribute('role', 'img');
   canvas.setAttribute('aria-label', 'Preview of your bouquet');
-  const frame = el('div', { className: 'frame' }, canvas);
+  const shuffle = el('button', {
+    className: 'quiet-link link-button',
+    type: 'button',
+    textContent: 'shuffle',
+    onclick: () => {
+      seed = randomSeed();
+      refresh();
+      replay();
+    },
+  });
+  const frame = el('div', { className: 'frame' }, el('div', { className: 'preview' }, canvas), shuffle);
 
   const picker = el('div', { className: 'choices' });
   const chips = el('div', { className: 'chips' });
@@ -49,13 +64,24 @@ export function showComposer(root: HTMLElement): void {
   status.setAttribute('role', 'alert');
   const send = el('button', { className: 'button button-send', type: 'submit', textContent: 'send these flowers' });
 
-  const to = el('input', { type: 'text', maxLength: LIMITS.to, autocomplete: 'off' });
-  const from = el('input', { type: 'text', maxLength: LIMITS.from, autocomplete: 'off' });
-  const note = el('textarea', { maxLength: LIMITS.note, rows: 4 });
+  const names = namesFromHash(location.hash);
+  if (location.hash) history.replaceState(null, '', location.pathname);
+  const to = el('input', { type: 'text', maxLength: LIMITS.to, autocomplete: 'off', dir: 'auto', value: names.to });
+  const from = el('input', { type: 'text', maxLength: LIMITS.from, autocomplete: 'off', dir: 'auto', value: names.from });
+  const note = el('textarea', { maxLength: LIMITS.note, rows: 4, dir: 'auto' });
+  const noteLeft = el('p', { className: 'hint', role: 'status' });
+  note.addEventListener('input', () => {
+    noteLeft.textContent = charactersLeft(note.value.length, LIMITS.note) ?? '';
+  });
   const code = el('input', { type: 'text', maxLength: LIMITS.code, autocomplete: 'off', spellcheck: false });
+  code.setAttribute('aria-describedby', 'code-hint');
 
   const form = el('form', { className: 'composer', noValidate: true });
   let stage: ReturnType<typeof createStage>;
+
+  function replay() {
+    if (!reducedMotion()) stage.play(undefined, QUICK_BLOOM_SECONDS);
+  }
 
   function refresh() {
     chips.replaceChildren(
@@ -92,6 +118,7 @@ export function showComposer(root: HTMLElement): void {
         onclick: () => {
           flowers.push(species);
           refresh();
+          replay();
         },
       }),
     );
@@ -159,19 +186,38 @@ export function showComposer(root: HTMLElement): void {
     el('fieldset', { className: 'group' }, el('legend', { className: 'field-label', textContent: 'colours' }), palettes),
     el('div', { className: 'names' }, field('to', to), field('from', from)),
     field('a note', note),
-    field('a gift code', code),
-    el('p', {
-      className: 'hint',
-      textContent:
-        'Optional. Buy the card elsewhere and paste its code. It is encrypted in your browser, but anyone with the full link can see it.',
-    }),
+    noteLeft,
+    el(
+      'details',
+      { className: 'extra' },
+      el('summary', { textContent: 'add a gift code' }),
+      field('gift code', code),
+      el('p', {
+        className: 'hint',
+        id: 'code-hint',
+        textContent:
+          'Buy the card elsewhere and paste its code. It is encrypted in your browser, but anyone with the full link can see it.',
+      }),
+    ),
     status,
     send,
   );
 
-  root.replaceChildren(el('h1', { className: 'title', textContent: 'send someone flowers' }), frame, form);
-  refresh(); // before the stage exists, so the finished bouquet doesn't flash ahead of the bloom
-  stage = createStage(canvas, look());
-  if (reducedMotion()) stage.showFinal();
-  else stage.play();
+  root.classList.add('composing');
+  root.replaceChildren(
+    el(
+      'div',
+      { className: 'intro' },
+      el('h1', { className: 'title', textContent: 'send someone flowers' }),
+      el('p', {
+        className: 'lede',
+        textContent: 'Pick a free virtual bouquet, add a note and share the link. They open it and watch it bloom.',
+      }),
+    ),
+    frame,
+    form,
+  );
+  refresh();
+  stage = createStage(canvas, look(), PREVIEW_CSS_PER_COL);
+  stage.showFinal();
 }

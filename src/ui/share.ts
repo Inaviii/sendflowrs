@@ -27,11 +27,11 @@ async function drawQr(canvas: HTMLCanvasElement, link: string) {
   }
 }
 
-export function downloadPng(canvas: HTMLCanvasElement) {
+export function downloadPng(canvas: HTMLCanvasElement, filename = 'sendflowrs-qr.png') {
   canvas.toBlob((blob) => {
     if (!blob) return;
     const url = URL.createObjectURL(blob);
-    const link = el('a', { href: url, download: 'sendflowrs-qr.png' });
+    const link = el('a', { href: url, download: filename });
     document.body.append(link);
     link.click();
     // Some browsers abort the download if the URL is revoked straight away.
@@ -43,6 +43,7 @@ export function downloadPng(canvas: HTMLCanvasElement) {
 }
 
 export function showShare(root: HTMLElement, link: string, bouquetText: string, hasCode: boolean): void {
+  root.classList.remove('composing');
   const status = el('p', { className: 'lede share-status' });
   status.setAttribute('role', 'status');
 

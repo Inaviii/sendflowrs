@@ -22,3 +22,14 @@ test('keeps the download URL alive after the click, then cleans up', () => {
   vi.runAllTimers();
   expect(events).toEqual(['attach', 'click', 'remove', 'revoke']);
 });
+
+test('downloads under the name it is given', () => {
+  vi.useFakeTimers();
+  const anchor = { click() {}, remove() {}, append() {}, download: '' };
+  vi.stubGlobal('document', { createElement: () => anchor, body: { append() {} } });
+  vi.stubGlobal('URL', { createObjectURL: () => 'blob:x', revokeObjectURL() {} });
+
+  downloadPng({ toBlob: (done: (b: Blob) => void) => done(new Blob()) } as unknown as HTMLCanvasElement, 'bouquet.png');
+
+  expect(anchor.download).toBe('bouquet.png');
+});
