@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Flower gallery</title>
+    <style>
+      body { margin: 0; padding: 16px; font: 14px Georgia, serif; background: #f7f0e3; color: #3a2f26; }
+      body.dark { background: #1f1a16; color: #e9dfd0; }
+      .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }
+      figure { margin: 0; }
+      figcaption { text-align: center; }
+      button { font: inherit; margin: 0 8px 12px 0; }
+    </style>
+  </head>
+  <body>
+    <button id="replay">replay</button>
+    <button id="theme">toggle dark</button>
+    <button id="end">show finished</button>
+    <div class="grid" id="grid"></div>
+    <script type="module" src="./gallery.ts"></script>
+  </body>
+</html>
