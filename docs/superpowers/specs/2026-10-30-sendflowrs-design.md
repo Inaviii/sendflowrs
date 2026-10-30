@@ -92,7 +92,7 @@ Vite and plain TypeScript with no UI framework. One Cloudflare Worker serves bot
 
 - `POST /api/gifts`: validates the body, stores the gift with a 1-year expiry, returns `{ "id": "a8f3k2q" }`.
 - `GET /api/gifts/:id`: returns the gift, or 404.
-- `GET /:id` (7 base62 characters): serves the app, which then fetches the gift.
+- `GET /:id` (7 base62 characters): serves the app, which then fetches the gift. Any other path also serves the app, which shows the wilted page.
 
 Unknown API paths return 404. A KV write failure returns 503.
 
@@ -137,7 +137,7 @@ Cloudflare's free tier allows 100,000 KV reads and 1,000 writes to different key
 - Encryption round trip, and clean failure with the wrong or missing key.
 - Bouquet layout is stable for a given seed.
 
-**Worker tests** on Cloudflare's local test runtime (`@cloudflare/vitest-pool-workers`): create, fetch, 404, rejected input, and rate limiting.
+**Worker tests** on Cloudflare's local test runtime (`@cloudflare/vitest-plugin`): create, fetch, 404, rejected input, and rate limiting.
 
 **One manual browser run before launch**, at phone and desktop sizes: compose, send, open the link, watch the bloom, reveal the code, scan the QR code, and check reduced motion and dark mode.
 
@@ -150,4 +150,4 @@ Cloudflare's free tier allows 100,000 KV reads and 1,000 writes to different key
 
 ## Before launch
 
-Owner tasks: register `sendflowrs.com`, create the Cloudflare account and KV namespace, choose the report email address, and create the public GitHub repository.
+Owner tasks: create the Cloudflare account and KV namespace, choose the report email address, and create the public GitHub repository.
