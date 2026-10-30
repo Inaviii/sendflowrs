@@ -8,7 +8,8 @@
     "dev": "vite",
     "build": "vite build",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit && tsc --noEmit -p worker"
+    "typecheck": "tsc --noEmit && tsc --noEmit -p worker",
+    "size": "node scripts/check-size.mjs"
   },
   "devDependencies": {
     "@cloudflare/vitest-plugin": "^1.4.11",
