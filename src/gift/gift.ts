@@ -58,3 +58,8 @@ export function validateGift(input: unknown): Result {
   }
   return { ok: true, gift };
 }
+
+/** Tolerates what chat apps leave on a pasted link, such as a trailing full stop or slash. */
+export function giftIdFromPath(path: string): string | null {
+  return /^([0-9A-Za-z]{7})(?![0-9A-Za-z])/.exec(path)?.[1] ?? null;
+}

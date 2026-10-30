@@ -120,7 +120,7 @@ function tulip(g: G, r: number, open: number, ink: Ink) {
 
 function lavender(g: G, r: number, open: number, ink: Ink) {
   const size = r * open;
-  const height = size * 2;
+  const height = size * 1.5; // the tip must stay inside the slot radius or the frame clips it
   const tiers = 7;
   for (let t = 0; t < tiers; t++) {
     const along = t / (tiers - 1);
@@ -130,7 +130,7 @@ function lavender(g: G, r: number, open: number, ink: Ink) {
     shape(g, oval(g, -spread, y, floret * 0.85, floret * 0.7, -0.5), ink, size);
     shape(g, oval(g, spread, y, floret * 0.85, floret * 0.7, 0.5), ink, size);
   }
-  shape(g, oval(g, 0, -height * 0.58, size * 0.09, size * 0.14), ink, size);
+  shape(g, oval(g, 0, -height * 0.56, size * 0.09, size * 0.14), ink, size);
 }
 
 function cherry(g: G, r: number, open: number, ink: Ink) {

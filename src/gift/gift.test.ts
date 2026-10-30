@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { validateGift } from './gift';
+import { giftIdFromPath, validateGift } from './gift';
 
 const base = { v: 1, flowers: ['rose'], palette: 0, seed: 1 };
 
@@ -35,3 +35,14 @@ test.each([
   ['bad iv', { ...base, code: { iv: 'short', ct: 'abc' } }],
   ['extra code field', { ...base, code: { iv: 'a'.repeat(16), ct: 'a', k: 'x' } }],
 ])('rejects %s', (_name, input) => expect(validateGift(input).ok).toBe(false));
+
+test.each([
+  ['a8f3k2q', 'a8f3k2q'],
+  ['a8f3k2q.', 'a8f3k2q'],
+  ['a8f3k2q/', 'a8f3k2q'],
+  ['a8f3k2q),', 'a8f3k2q'],
+  ['a8f3k2', null],
+  ['a8f3k2qq', null],
+  ['nonsense-path', null],
+  ['', null],
+])('reads a gift id from the path %j', (path, id) => expect(giftIdFromPath(path)).toBe(id));

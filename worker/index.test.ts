@@ -63,3 +63,15 @@ test('rate limits creation per IP without blocking others', async () => {
   expect(statuses).toContain(429);
   expect((await post(gift, '203.0.113.10')).status).toBe(201);
 });
+
+test('refuses gifts submitted from other websites', async () => {
+  const fromSite = (site: string) =>
+    exports.default.fetch('http://x/api/gifts', {
+      method: 'POST',
+      headers: { 'cf-connecting-ip': crypto.randomUUID(), 'sec-fetch-site': site },
+      body: JSON.stringify(gift),
+    });
+  expect((await fromSite('cross-site')).status).toBe(403);
+  expect((await fromSite('same-site')).status).toBe(403);
+  expect((await fromSite('same-origin')).status).toBe(201);
+});

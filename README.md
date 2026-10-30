@@ -29,7 +29,7 @@ One Worker serves the static app and a small JSON API. The browser and Worker sh
 
 | What | Gzipped |
 |---|---|
-| JavaScript on every page | 8.2 KB |
+| JavaScript on every page | 8.3 KB |
 | QR library, loaded only on the share screen | 7.3 KB |
 | CSS | 1.7 KB |
 

@@ -27,12 +27,18 @@ async function drawQr(canvas: HTMLCanvasElement, link: string) {
   }
 }
 
-function downloadPng(canvas: HTMLCanvasElement) {
+export function downloadPng(canvas: HTMLCanvasElement) {
   canvas.toBlob((blob) => {
     if (!blob) return;
     const url = URL.createObjectURL(blob);
-    el('a', { href: url, download: 'sendflowrs-qr.png' }).click();
-    URL.revokeObjectURL(url);
+    const link = el('a', { href: url, download: 'sendflowrs-qr.png' });
+    document.body.append(link);
+    link.click();
+    // Some browsers abort the download if the URL is revoked straight away.
+    setTimeout(() => {
+      link.remove();
+      URL.revokeObjectURL(url);
+    }, 1000);
   });
 }
 

@@ -68,6 +68,9 @@ export function showComposer(root: HTMLElement): void {
           onclick: () => {
             flowers.splice(index, 1);
             refresh();
+            // The pressed chip is gone, so keep keyboard users in place.
+            const left = chips.querySelectorAll('button');
+            (left[index] ?? left[index - 1] ?? picker.querySelector('button'))?.focus();
           },
         }),
       ),
@@ -167,8 +170,8 @@ export function showComposer(root: HTMLElement): void {
   );
 
   root.replaceChildren(el('h1', { className: 'title', textContent: 'send someone flowers' }), frame, form);
+  refresh(); // before the stage exists, so the finished bouquet doesn't flash ahead of the bloom
   stage = createStage(canvas, look());
-  refresh();
   if (reducedMotion()) stage.showFinal();
   else stage.play();
 }

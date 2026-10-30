@@ -22,6 +22,10 @@ export function newId(): string {
 }
 
 async function createGift(request: Request, env: Env): Promise<Response> {
+  // Stops other websites spending the daily write quota through their visitors' browsers.
+  const site = request.headers.get('sec-fetch-site');
+  if (site && site !== 'same-origin' && site !== 'none') return error('gifts must be sent from this site', 403);
+
   const { success } = await env.CREATE_LIMIT.limit({ key: request.headers.get('cf-connecting-ip') ?? 'unknown' });
   if (!success) return error('too many gifts, try again shortly', 429);
 
