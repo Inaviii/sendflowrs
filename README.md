@@ -69,7 +69,7 @@ npm run size
 npx wrangler kv namespace create GIFTS
 ```
 
-Put the returned ID in `wrangler.jsonc`, replace `REPORT_EMAIL_HERE` in `index.html`, then:
+Put the returned ID in `wrangler.jsonc`, change the report address in `index.html` to your own, then:
 
 ```bash
 npm run build
