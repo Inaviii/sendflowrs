@@ -1,0 +1,209 @@
+:root {
+  color-scheme: light dark;
+  --paper: #f7f0e3;
+  --ink: #3a2f26;
+  --ink-soft: #6b5c4e;
+  --rule: #d9cdb8;
+  --problem: #9c2f27;
+  --serif: Georgia, 'Times New Roman', serif;
+  --mono: ui-monospace, Consolas, Menlo, monospace;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #1f1a16;
+    --ink: #e9dfd0;
+    --ink-soft: #b5a897;
+    --rule: #453a30;
+    --problem: #f0998f;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+html {
+  background: var(--paper);
+  scrollbar-color: var(--rule) var(--paper);
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  color: var(--ink);
+  font: 1.0625rem/1.55 var(--serif);
+  caret-color: var(--ink);
+}
+
+::selection {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+#app {
+  flex: 1;
+  width: 100%;
+  max-width: 34rem;
+  margin-inline: auto;
+  padding: clamp(2rem, 7vh, 4.5rem) 1rem 2.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(1.625rem, 6vw, 2.125rem);
+  font-weight: 400;
+  font-style: italic;
+  line-height: 1.2;
+  text-align: center;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+
+.lede {
+  margin: 0;
+  color: var(--ink-soft);
+  text-align: center;
+}
+
+.frame {
+  width: 100%;
+}
+
+.bouquet {
+  display: block;
+}
+
+.letter {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+/* The letter arrives once, after the bloom has had the stage to itself. */
+.arrive {
+  animation: arrive 900ms var(--ease-out) both;
+}
+
+@keyframes arrive {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+}
+
+.note {
+  margin: 0;
+  width: 100%;
+  max-width: 65ch;
+  font-size: 1.1875rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.signature {
+  margin: -0.5rem 0 0;
+  align-self: flex-end;
+  font-style: italic;
+  color: var(--ink-soft);
+  overflow-wrap: anywhere;
+}
+
+.button {
+  display: inline-block;
+  min-height: 2.75rem;
+  padding: 0.5rem 1.25rem;
+  border: 1px solid var(--ink);
+  border-radius: 2px;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 150ms ease-out, color 150ms ease-out;
+}
+
+.button:hover {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  background: transparent;
+  color: var(--ink);
+}
+
+.quiet-link,
+.site-footer a {
+  color: var(--ink-soft);
+  text-underline-offset: 0.2em;
+}
+
+.quiet-link:hover,
+.site-footer a:hover {
+  color: var(--ink);
+}
+
+.reveal {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.code {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-block: 1px solid var(--rule);
+  font-family: var(--mono);
+  text-align: center;
+  overflow-wrap: anywhere;
+  user-select: all;
+}
+
+.problem {
+  margin: 0;
+  color: var(--problem);
+  text-align: center;
+}
+
+.site-footer {
+  padding: 1rem;
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--ink-soft);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .arrive {
+    animation: none;
+  }
+  .button {
+    transition: none;
+  }
+}
