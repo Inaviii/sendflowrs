@@ -1,5 +1,6 @@
 import { decryptCode } from '../crypto/code';
 import { validateGift, type Gift } from '../gift/gift';
+import { copyText } from './clipboard';
 import { describeBouquet, greeting, signature } from './copy';
 import { el, reducedMotion } from './dom';
 import { createStage } from './stage';
@@ -33,14 +34,24 @@ function revealer(gift: Gift, key: string): HTMLElement | null {
     textContent: 'reveal your gift code',
     onclick: async () => {
       const code = await decryptCode(payload, key);
-      area.replaceChildren(
-        code === null
-          ? el('p', {
-              className: 'problem',
-              textContent: "This link's gift code is missing part of its key, so ask the sender for the full link.",
-            })
-          : el('output', { className: 'code', textContent: code }),
-      );
+      if (code === null) {
+        area.replaceChildren(
+          el('p', {
+            className: 'problem',
+            textContent: "This link's gift code is missing part of its key, so ask the sender for the full link.",
+          }),
+        );
+        return;
+      }
+      const copy = el('button', {
+        className: 'quiet-link link-button',
+        type: 'button',
+        textContent: 'copy code',
+        onclick: async () => {
+          copy.textContent = (await copyText(code)) ? 'copied' : 'select the code above to copy it';
+        },
+      });
+      area.replaceChildren(el('output', { className: 'code', textContent: code }), copy);
     },
   });
   area.append(button);

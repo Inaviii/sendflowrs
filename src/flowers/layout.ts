@@ -37,6 +37,7 @@ function mulberry32(seed: number) {
 }
 
 export function layoutBouquet(flowers: Species[], seed: number): Placement[] {
+  if (flowers.length === 0) return [];
   const random = mulberry32(seed);
   const spread = (size: number) => (random() * 2 - 1) * size;
   const order = flowers.map((_, i) => i);

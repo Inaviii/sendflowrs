@@ -11,6 +11,7 @@ const MAX_COLS = 72;
 const SLOW_COLS = 48;
 const CSS_PER_COL = 6;
 const FRAME_MS = 1000 / 30;
+const MAX_STEP_MS = 250;
 const SLOW_FRAME_MS = 40;
 const SLOW_CHECK_FRAMES = 15;
 const TEXT_COLS = 48;
@@ -73,8 +74,8 @@ export function createStage(canvas: HTMLCanvasElement, look: Look) {
         return;
       }
       last = now;
-      // A hidden tab gets no frames, so a long gap means it was away and the bloom should wait.
-      elapsed += document.hidden || delta > 1000 ? 0 : delta;
+      // A hidden tab gets no frames, so capping the step makes the bloom wait for it while slow devices still progress.
+      elapsed += Math.min(delta, MAX_STEP_MS);
       progress = Math.min(1, elapsed / (BLOOM_SECONDS * 1000));
 
       const started = performance.now();

@@ -35,3 +35,7 @@ test.each(bouquets.map((b) => [b]))('keeps heads apart and in bounds: %j', (f) =
     });
   }
 });
+
+test('an empty bouquet lays out to nothing, for the composer preview', () => {
+  expect(layoutBouquet([], 1)).toEqual([]);
+});
